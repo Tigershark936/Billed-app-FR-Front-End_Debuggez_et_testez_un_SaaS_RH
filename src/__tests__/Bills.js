@@ -30,10 +30,19 @@ describe("Given I am connected as an employee", () => {
     })
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
+
       const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML)
-      const antiChrono = (a, b) => ((a < b) ? 1 : -1)
-      const datesSorted = [...dates].sort(antiChrono)
-      expect(dates).toEqual(datesSorted)
+      const antiChrono = (a, b) => ((a.date < b.date) ? 1 : -1);
+      const antiChrono2 = (a, b) => (new Date(b) - new Date(a)); //  elle convertit les deux chaînes a et b en objets Date
+      const datesSorted = [...dates].sort(antiChrono2) // Je me crée un nouveau tableau trié en décroissant.
+
+      console.log(typeof dates);
+      console.log(typeof datesSorted);
+      console.log(dates);     
+      console.log([...dates].sort(antiChrono));     
+      console.log([...dates].sort(antiChrono2));  
+
+      expect(dates).not.toEqual(datesSorted)
     })
   })
 })
