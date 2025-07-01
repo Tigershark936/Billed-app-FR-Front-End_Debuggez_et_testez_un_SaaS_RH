@@ -2,13 +2,14 @@
  * @jest-environment jsdom
  */
 
-import {screen, waitFor} from "@testing-library/dom"
+import { screen, waitFor, fireEvent } from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
-import {localStorageMock} from "../__mocks__/localStorage.js";
-
-import router from "../app/Router.js";
+import { ROUTES_PATH } from "../constants/routes.js"
+import { localStorageMock } from "../__mocks__/localStorage.js"
+import router from "../app/Router.js"
+import Bills from "../containers/Bills.js"
+import mockStore from "../__mocks__/store.js"
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -27,6 +28,9 @@ describe("Given I am connected as an employee", () => {
       const windowIcon = screen.getByTestId('icon-window')
       //to-do write expect expression
 
+      // Ajout de cette ligne pour finaliser le test afin de vérifié que l'icone est true si .active-icon
+      expect(windowIcon.classList.contains("active-icon")).toBe(true)
+
     })
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
@@ -36,4 +40,46 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
   })
+  
+  // Test sur ce qui se passe quand on clique sur le bouton "Nouvelle note de frais"
+  describe("When I click on 'Nouvelle note de frais'", () => {
+    test("Then it should navigate to NewBill page", () => {
+      // Afficher l'interface Bills
+      document.body.innerHTML = BillsUI({ data: bills })
+      
+      // Simuler la navigation
+      const onNavigate = jest.fn()
+      const billsContainer = new Bills({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage
+      })
+      
+      // On prend et simule le bouton qui dit "Nouvelle note de frais" avec un controle du click et si click on utilise la fonction + un event par the user 
+      const newBillButton = screen.getByTestId("btn-new-bill")
+      const handleClickNewBill = jest.fn(billsContainer.handleClickNewBill)
+      newBillButton.addEventListener("click", handleClickNewBill)
+      fireEvent.click(newBillButton)
+      
+      // Vérifie que la fonction a été appelée et que la navigation est sur la bonne page
+      expect(handleClickNewBill).toHaveBeenCalled()
+      expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['NewBill'])
+    })
+  })
+  
+  // Test si la page récupère bien les factures
+  describe("When I navigate to Bills", () => {
+    test("Then it should fetch bills from mock API", async () => {
+      // On va observe la fonction pour l'appel à mockStore.bills()
+      const appelFactures = jest.spyOn(mockStore, "bills")
+      
+      // on utilise la fonction pour aller chercher les données avec la méthode .list() du store mocké
+      const bills = await mockStore.bills().list()
+      
+      // Vérifie que la méthode a bien été appelée et que des données ont été récupérées
+      expect(appelFactures).toHaveBeenCalled()
+      expect(bills.length).toBeGreaterThan(0)
+    })
+  }) 
 })
