@@ -22,10 +22,6 @@ export default class {
 
   handleClickIconEye = (icon) => {
     const billUrl = icon.getAttribute("data-bill-url")
-    console.log("icône cliquée : ", icon);
-    console.log("billUrl", billUrl)
-    console.log("data-bill-url récupéré :", icon.getAttribute("data-bill-url"));
-    
     const imgWidth = Math.floor($('#modaleFile').width() * 0.5)
     $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`)
     $('#modaleFile').modal('show')
@@ -37,15 +33,11 @@ export default class {
       .bills()
       .list()
       .then(snapshot => {
-        let bills = snapshot
-        bills.sort((a, b) => new Date(b.date) - new Date(a.date)); // je prend la valeur date de tableau de bills
-        console.log(snapshot);
-
-          bills = bills.map(doc => {
+        const bills = snapshot
+          .map(doc => {
             try {
-              console.log("fileUrl de", doc.name, ":", doc.fileUrl);
               return {
-                ...doc, // représente une facture. doc = un objet bill
+                ...doc,
                 date: formatDate(doc.date),
                 status: formatStatus(doc.status)
               }
@@ -60,7 +52,7 @@ export default class {
               }
             }
           })
-          console.log('length', bills.length)         
+          console.log('length', bills.length)
         return bills
       })
     }

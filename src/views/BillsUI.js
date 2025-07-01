@@ -20,7 +20,21 @@ const row = (bill) => {
   }
 
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
+  console.log("Données reçues :", data);
+
+  if (!data || !data.length) {
+    return "";
+  }
+
+  // Filtre : on enlève les dates "1 Jan. 70" (= dates invalides)
+  const validData = data.filter(bill => bill.date !== "1 Jan. 70");
+  console.log("Données valides (sans 1 Jan. 70) :", validData);
+
+  // Tri du plus ancien au plus récent
+  const sorted = [...validData].sort((a, b) => b.date.localeCompare(a.date)); // localeCompare joue le rôle - mais pour les strings
+  console.log("Données triées (du plus ancien au plus récent) :", sorted);
+
+  return sorted.map(bill => row(bill)).join("")
 }
 
 export default ({ data: bills, loading, error }) => {
