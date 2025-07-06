@@ -2,6 +2,11 @@ export const formatDate = (dateStr) => {
   const date = new Date(dateStr)
   // console.log(date);
   
+    // Ajout : vérifie que la date est valide
+  if (isNaN(date.getTime())) {
+    return dateStr // ou éventuellement 'Date invalide' si tu préfères
+  }
+
   const ye = new Intl.DateTimeFormat('fr', { year: 'numeric' }).format(date)
   const mo = new Intl.DateTimeFormat('fr', { month: 'short' }).format(date)
   const da = new Intl.DateTimeFormat('fr', { day: '2-digit' }).format(date)
@@ -18,6 +23,8 @@ export const formatStatus = (status) => {
     case "accepted":
       return "Accepté"
     case "refused":
-      return "Refused"
+      return "Refusé"
+    default:
+      return status // garde le brut si inconnu
   }
 }

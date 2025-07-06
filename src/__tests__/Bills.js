@@ -5,12 +5,11 @@
 import { screen, waitFor, fireEvent } from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH } from "../constants/routes.js"
+import { ROUTES_PATH, ROUTES } from "../constants/routes.js"
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import router from "../app/Router.js"
 import Bills from "../containers/Bills.js"
 import mockStore from "../__mocks__/store.js"
-
 
 // Étant donné que je suis connecté en tant qu'employé
 describe("Given I am connected as an employee", () => {
@@ -34,7 +33,6 @@ describe("Given I am connected as an employee", () => {
 
       // Ajout de cette ligne pour finaliser le test afin de vérifié que l'icone est true si .active-icon
       expect(windowIcon.classList.contains("active-icon")).toBe(true)
-
     })
 
     // Test Unitaire : les factures doivent être triées du + récent au + ancien
@@ -47,12 +45,13 @@ describe("Given I am connected as an employee", () => {
     })
   })
   
-  // Test Unitaire : sur ce qui se passe quand on clique sur le bouton "Nouvelle note de frais"
+  // Étant donné que je suis connecté en tant qu'employé et que je clique sur le bouton "Nouvelle note de frais"
   describe("When I click on 'Nouvelle note de frais'", () => {
+    // Test Unitaire : sur ce qui se passe quand on clique sur le bouton "Nouvelle note de frais"
     test("Then it should navigate to NewBill page", () => {
       // Afficher l'interface Bills
       document.body.innerHTML = BillsUI({ data: bills })
-      
+
       // Simuler la navigation
       const onNavigate = jest.fn()
       const billsContainer = new Bills({
@@ -61,7 +60,7 @@ describe("Given I am connected as an employee", () => {
         store: null,
         localStorage: window.localStorage
       })
-      
+
       // On prend et simule le bouton qui dit "Nouvelle note de frais" avec un controle du click et si click on utilise la fonction + un event par the user 
       const newBillButton = screen.getByTestId("btn-new-bill")
       const handleClickNewBill = jest.fn(billsContainer.handleClickNewBill)
@@ -74,8 +73,9 @@ describe("Given I am connected as an employee", () => {
     })
   })
   
-  // Test Unitaire : si la page récupère bien les factures
+  // Étant donné que je suis connecté en tant qu'employé et que je navigue vers la page Bills
   describe("When I navigate to Bills", () => {
+    // Test Unitaire : si la page récupère bien les factures
     test("Then it should fetch bills from mock API", async () => {
       // On va observe la fonction pour l'appel à mockStore.bills()
       const appelFactures = jest.spyOn(mockStore, "bills")
@@ -89,8 +89,9 @@ describe("Given I am connected as an employee", () => {
     })
   })
   
-  // Test Unitaire : Clic sur une icône œil donc modale s’ouvre
+  // Étant donné que je suis connecté en tant qu'employé et que je clique sur l'icône œil d'une facture
   describe("When I click on the eye icon of a bill", () => {
+    // Test Unitaire : Clic sur une icône œil donc modale s’ouvre
     test("Then a modal should open with the bill proof", () => {
       // Injecte le HTML avec les données mockées
       document.body.innerHTML = BillsUI({ data: bills, loading: false, error: null })
@@ -123,6 +124,63 @@ describe("Given I am connected as an employee", () => {
       // On vérifie que la modale est bien présente dans le DOM
       const modal = screen.getByTestId("modaleFile")
       expect(modal).toBeTruthy()
+    })
+  })
+
+  // Étant donné que je suis connecté en tant qu'employé et que je veux récupérer mes factures
+  describe("When I call getBills()", () => {
+    // Test Unitaire : la fonction retourne bien les factures formatées
+    test("Then it should return formatted bills", async () => {
+      // On initialise le container Bills avec le store mocké
+      const billsContainer = new Bills({
+        document,
+        onNavigate: jest.fn(),
+        store: mockStore,
+        localStorage: window.localStorage
+      })
+
+      // On récupère la liste des factures
+      const billsList = await billsContainer.getBills()
+
+      // On vérifie que la liste existe et n'est pas vide
+      expect(billsList).toBeTruthy()
+      expect(billsList.length).toBeGreaterThan(0)
+
+      // On vérifie que pour chaque facture que la date est bien formatée et que le statut est traduit correctement
+      billsList.forEach(bill => {
+        // Vérifie que la date est formatée ou restituée correctement
+        expect(bill.date).toMatch(/\d{1,2} [A-Za-zéû]+\. \d{2}/)
+        // Vérifie que le statut brut attendu est bien présent
+        const validStatuses = ["En attente", "Accepté", "Refusé"]
+        expect(validStatuses).toContain(bill.status)
+      })
+    })
+
+    // Test Unitaire : la fonction gère correctement des données corrompues
+    test("Then it should handle corrupted data gracefully", async () => {
+      const corruptedStore = {
+        bills: () => ({
+          list: () => Promise.resolve([
+            { id: 1, date: "invalid-date", status: "pending" }
+          ])
+        })
+      }
+
+      // On initialise Bills avec le store corrompu
+      const billsContainer = new Bills({
+        document,
+        onNavigate: jest.fn(),
+        store: corruptedStore,
+        localStorage: window.localStorage
+      })
+
+      // On récupère la liste des factures
+      const billsList = await billsContainer.getBills()
+
+      // On vérifie que la date brute est restituée si invalide
+      expect(billsList[0].date).toBe("invalid-date")
+      // On vérifie que le statut reste correctement traduit même si la date est invalide
+      expect(billsList[0].status).toBe("En attente")
     })
   })
 })

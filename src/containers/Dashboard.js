@@ -77,7 +77,7 @@ export default class {
     this.onNavigate = onNavigate
     this.store = store
 
-    // Lie les méthodes au bon contexte "this" afin que quand un bouton ou une action veut l'utiliser, il ne se perd pas !(.bind)
+    // Lie les méthodes au bon contexte "this" afin que quand un bouton ou une action veut l'utiliser, il ne se perd pas !
     this.handleEditTicket = this.handleEditTicket.bind(this)
     this.handleClickIconEye = this.handleClickIconEye.bind(this)
     this.handleAcceptSubmit = this.handleAcceptSubmit.bind(this)
