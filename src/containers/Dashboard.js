@@ -102,29 +102,29 @@ export default class {
 
   // Affiche ou replie une liste de factures selon leur statut
   handleShowTickets(e, bills, index) {
-    console.log("→ handleShowTickets appelé ", index)
+    // console.log("→ handleShowTickets appelé ", index)
 
     const container = $(`#status-bills-container${index}`)
     const arrow = $(`#arrow-icon${index}`)
     const isOpen = container.html().trim() !== ""
 
     if (isOpen) {
-      console.log("→ Liste déjà ouverte, on la replie")
+      // console.log("→ Liste déjà ouverte, on la replie")
       arrow.css({ transform: 'rotate(90deg)' })
       container.html("")
     } else {
-      console.log("→ Liste fermée, on la déplie")
+      // console.log("→ Liste fermée, on la déplie")
       arrow.css({ transform: 'rotate(0deg)', transition: 'transform 0.3s ease' })
 
       const filtered = filteredBills(bills, getStatus(index))
-      console.log("→ Bills filtrés par son statut :", filtered)
+      // console.log("→ Bills filtrés par son statut :", filtered)
 
       container.html(cards(filtered))
 
       // Ajoute les événements sur les tickets visibles
       filtered.forEach(bill => {
         const selector = `#open-bill${bill.id}`
-        console.log(`→ Attachement listener sur ${selector}`)
+        // console.log(`→ Attachement listener sur ${selector}`)
         $(selector).click((e) => this.handleEditTicket(e, bill, bills))
       })
     }
@@ -134,13 +134,13 @@ export default class {
 
   // Gère le clic sur un ticket pour afficher ou fermer le formulaire
   handleEditTicket(e, bill, bills) {
-    console.log("→ handleEditTicket appelé")
-    console.log("→ Ticket cliqué :", bill.id)
-    console.log("→ Ticket actuellement affiché :", this.id)
+    // console.log("→ handleEditTicket appelé")
+    // console.log("→ Ticket cliqué :", bill.id)
+    // console.log("→ Ticket actuellement affiché :", this.id)
 
     // Si l'utilisateur clique sur le même ticket (bill.id) déjà affiché, on le referme
     if (this.id === bill.id) {
-      console.log("→ Même ticket recliqué : fermeture (toggle OFF)")
+      // console.log("→ Même ticket recliqué : fermeture (toggle OFF)")
       // Restaure la couleur de fond par défaut sur la carte
       $(`#open-bill${bill.id}`).css({ background: '#0D5AE5' })
       // La note de frais à droite retrouve son état initial 
@@ -152,7 +152,7 @@ export default class {
       this.id = null
     } else {
       // Par contre si un new bill est sélectionné
-      console.log("→ Nouveau ticket sélectionné : affichage du formulaire")
+      // console.log("→ Nouveau ticket sélectionné : affichage du formulaire")
       bills.forEach(b => {
         $(`#open-bill${b.id}`).css({ background: '#0D5AE5' })
       })

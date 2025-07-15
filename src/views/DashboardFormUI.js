@@ -22,7 +22,7 @@ export const modal = () => (`
   `)
 
 export default (bill) => {
-console.log('bill', bill);
+// console.log('bill', bill);
 
   return (`
     <div class="container dashboard-form" data-testid="dashboard-form">
